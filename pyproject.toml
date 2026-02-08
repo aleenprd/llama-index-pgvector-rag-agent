@@ -1,0 +1,16 @@
+[project]
+name = "llama-index-pgvector-rag-agent"
+version = "0.1.0"
+description = "A RAG agent using Llama Index and Postgres Vector Store"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "llama-index>=0.14.13",
+    "llama-index-embeddings-huggingface>=0.6.1",
+    "llama-index-llms-openai-like>=0.6.0",
+    "llama-index-vector-stores-postgres>=0.7.3",
+    "loguru>=0.7.3",
+    "python-dotenv>=1.2.1",
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+]
