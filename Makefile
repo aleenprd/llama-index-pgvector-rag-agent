@@ -1,4 +1,4 @@
-.PHONY: help db-start db-stop db-restart db-connect db-logs db-logs-follow db-status db-remove db-remove-all db-shell db-help
+.PHONY: help db-start db-stop db-restart db-connect db-logs db-logs-follow db-status db-remove db-remove-all db-shell db-help llama-start llama-stop llama-restart llama-logs llama-logs-follow llama-status llama-remove llama-help
 
 # Load environment variables from .env file
 ifneq (,$(wildcard ./.env))
@@ -8,8 +8,11 @@ endif
 
 # Default target
 help:
-	@echo "🐘 PostgreSQL Docker Management Commands"
+	@echo "🚀 Docker Management Commands"
 	@echo ""
+	@echo "═══════════════════════════════════════════════"
+	@echo "🐘 PostgreSQL Database"
+	@echo "═══════════════════════════════════════════════"
 	@echo "Setup:"
 	@echo "  make db-start         - Start PostgreSQL container"
 	@echo "  make db-stop          - Stop PostgreSQL container"
@@ -31,7 +34,26 @@ help:
 	@echo "Help:"
 	@echo "  make db-help          - Show detailed PostgreSQL server script help"
 	@echo ""
-	@echo "💡 Tip: Run 'make db-help' for environment variables and configuration options"
+	@echo "═══════════════════════════════════════════════"
+	@echo "🦙 Llama.cpp Server"
+	@echo "═══════════════════════════════════════════════"
+	@echo "Setup:"
+	@echo "  make llama-start      - Start Llama.cpp server (interactive)"
+	@echo "  make llama-stop       - Stop Llama.cpp server"
+	@echo "  make llama-restart    - Restart Llama.cpp server"
+	@echo ""
+	@echo "Monitor:"
+	@echo "  make llama-logs       - View server logs"
+	@echo "  make llama-logs-follow - Follow server logs (live)"
+	@echo "  make llama-status     - Show server status"
+	@echo ""
+	@echo "Cleanup:"
+	@echo "  make llama-remove     - Remove server container"
+	@echo ""
+	@echo "Help:"
+	@echo "  make llama-help       - Show detailed Llama.cpp server script help"
+	@echo ""
+	@echo "💡 Tip: Run 'make db-help' or 'make llama-help' for configuration options"
 
 # Show detailed help from the PostgreSQL server script
 db-help:
@@ -87,3 +109,44 @@ db-remove-all:
 	@docker rm postgres-db 2>/dev/null || true
 	@docker volume rm postgres_data 2>/dev/null || true
 	@echo "✅ Container and data volume removed"
+
+# ═══════════════════════════════════════════════
+# Llama.cpp Server Commands
+# ═══════════════════════════════════════════════
+
+# Show detailed help from the Llama.cpp server script
+llama-help:
+	@./start-docker-llamacpp-server.sh --help
+
+# Start the Llama.cpp server using the shell script (interactive)
+llama-start:
+	@./start-docker-llamacpp-server.sh
+
+# Stop the server
+llama-stop:
+	@echo "⏹️  Stopping Llama.cpp server..."
+	@docker stop llama-cpp-server
+
+# Restart the server
+llama-restart: llama-stop
+	@echo "▶️  Starting Llama.cpp server..."
+	@docker start llama-cpp-server
+
+# View server logs
+llama-logs:
+	@docker logs llama-cpp-server
+
+# Follow server logs (live)
+llama-logs-follow:
+	@docker logs -f llama-cpp-server
+
+# Show server status
+llama-status:
+	@docker ps --filter "name=llama-cpp-server" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"
+
+# Remove server container
+llama-remove:
+	@echo "🗑️  Removing Llama.cpp server container..."
+	@docker stop llama-cpp-server 2>/dev/null || true
+	@docker rm llama-cpp-server 2>/dev/null || true
+	@echo "✅ Container removed"
