@@ -14,6 +14,9 @@ from src.misc import (
 load_dotenv()  # Load environment variables from .env file
 nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
 
+# Default configuration constants
+DEFAULT_POSTGRES_TABLE = "llama_index_embeddings"
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Postgres Vector Store RAG Agent")
@@ -120,7 +123,7 @@ async def main():
     # Validate required Postgres environment variables
     postgres_table = os.getenv("POSTGRES_TABLE")
     if not postgres_table:
-        postgres_table = "llama_index_embeddings"
+        postgres_table = DEFAULT_POSTGRES_TABLE
         logger.warning(
             f"POSTGRES_TABLE not set, using default: '{postgres_table}'. "
             f"Set POSTGRES_TABLE in .env to customize the table name."
@@ -134,7 +137,7 @@ async def main():
         "POSTGRES_DB": os.getenv("POSTGRES_DB"),
     }
     
-    missing_vars = [var for var, value in required_env_vars.items() if not value]
+    missing_vars = [var for var, value in required_env_vars.items() if value is None or value == ""]
     if missing_vars:
         error_msg = (
             f"Missing required environment variable(s): {', '.join(missing_vars)}. "
