@@ -32,7 +32,7 @@ def convert_to_binary(filename: str) -> bytes:
     return data
 
 
-def unix_timestamp_to_timestamp(unix_timestamp: int) -> float:
+def unix_timestamp_to_timestamp(unix_timestamp: int) -> str:
     """Convert a Unix timestamp to a standard timestamp.
 
     Args:
