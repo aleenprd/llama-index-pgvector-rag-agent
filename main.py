@@ -122,7 +122,7 @@ async def main():
     
     # Validate required Postgres environment variables
     postgres_table = os.getenv("POSTGRES_TABLE")
-    if not postgres_table:
+    if postgres_table is None or postgres_table == "":
         postgres_table = DEFAULT_POSTGRES_TABLE
         logger.warning(
             f"POSTGRES_TABLE not set, using default: '{postgres_table}'. "
@@ -150,8 +150,10 @@ async def main():
     # Convert and validate POSTGRES_PORT
     try:
         postgres_port = int(required_env_vars["POSTGRES_PORT"])
+        if not (1 <= postgres_port <= 65535):
+            raise ValueError(f"Port must be between 1 and 65535, got {postgres_port}")
     except ValueError as e:
-        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer"
+        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer between 1 and 65535"
         logger.error(error_msg)
         raise ValueError(error_msg) from e
     
