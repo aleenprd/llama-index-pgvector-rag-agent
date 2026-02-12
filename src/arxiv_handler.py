@@ -259,7 +259,7 @@ class ArxivHandler:
 
         if not json_path.exists() or not md_path.exists():
             logger.debug(f"Document {id} not found in {dir}")
-            return []
+            raise FileNotFoundError(f"Document {id} not found in {dir}")
 
         with open(json_path, "r", encoding="utf-8") as f:
             doc = json.load(f)
