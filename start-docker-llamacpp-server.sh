@@ -12,7 +12,8 @@
 #   LLAMACPP_CONTEXT_SIZE   - Context size (default: 512)
 #   LLAMACPP_GPU_LAYERS     - GPU layers (default: 99)
 #   LLAMACPP_LOG_FILE       - Log file name (default: llama-server.log)
-#   LLAMACPP_IMAGE      - Docker image (default: ghcr.io/ggml-org/llama.cpp:full)
+#   LLAMACPP_IMAGE          - Docker image (default: ghcr.io/ggml-org/llama.cpp:full-cuda)
+#   LLAMACPP_CUDA_TEST_IMAGE - CUDA test image (default: nvidia/cuda:11.8.0-base-ubuntu22.04)
 #
 # Command-line arguments (override environment variables):
 #   --host               - Server host
@@ -22,11 +23,12 @@
 #   -g, --gpu-layers     - GPU layers
 #   -l, --log-file       - Log file name
 #   -i, --image          - Docker image
+#   --cuda-test-image    - CUDA test image
 #   -h, --help           - Show this help message
 #
 # Example usage:
-#   ./start-docker-server.sh -c 1024 -g 50 -l my-server.log
-#   LLAMA_PORT=8080 ./start-docker-server.sh --context-size 2048 --port 9000
+#   ./start-docker-llamacpp-server.sh -c 1024 -g 50 -l my-server.log
+#   LLAMACPP_PORT=8080 ./start-docker-llamacpp-server.sh --context-size 2048 --port 9000
 
 # Color codes for better visibility
 RED='\033[0;31m'
@@ -83,13 +85,13 @@ if [ -f ".env" ]; then
 fi
 
 # Set default values from environment variables with fallbacks
-HOST=${LLAMA_HOST:-0.0.0.0}
+HOST=${LLAMACPP_HOST:-0.0.0.0}
 SERVER_PORT=${LLAMACPP_PORT:-8000}
 MODELS_PATH=${LLAMACPP_MODELS_PATH:-/models}
 CONTEXT_SIZE=${LLAMACPP_CONTEXT_SIZE:-512}
 GPU_LAYERS=${LLAMACPP_GPU_LAYERS:-99}
 LOG_FILE=${LLAMACPP_LOG_FILE:-llama-server.log}
-LLAMA_CPP_IMAGE=${LLAMA_CPP_IMAGE:-ghcr.io/ggml-org/llama.cpp:full-cuda}
+LLAMA_CPP_IMAGE=${LLAMACPP_IMAGE:-ghcr.io/ggml-org/llama.cpp:full-cuda}
 CUDA_TEST_IMAGE=${LLAMACPP_CUDA_TEST_IMAGE:-nvidia/cuda:12.6.0-base-ubuntu24.04}
 
 # Parse command-line arguments (these override environment variables)
@@ -119,8 +121,12 @@ while [[ $# -gt 0 ]]; do
             LOG_FILE="$2"
             shift 2
             ;;
-                -i|--image)
+        -i|--image)
             LLAMA_CPP_IMAGE="$2"
+            shift 2
+            ;;
+        --cuda-test-image)
+            CUDA_TEST_IMAGE="$2"
             shift 2
             ;;
         -h|--help)
@@ -134,21 +140,22 @@ while [[ $# -gt 0 ]]; do
             echo "  -g, --gpu-layers LAYERS   GPU layers (default: 99)"
             echo "  -l, --log-file FILE       Log file name (default: llama-server.log)"
             echo "  -i, --image IMAGE         Docker image (default: ghcr.io/ggml-org/llama.cpp:full-cuda)"
+            echo "  --cuda-test-image IMAGE   CUDA test image (default: nvidia/cuda:12.6.0-base-ubuntu24.04)"
             echo "  -h, --help                Show this help message"
             echo ""
-            echo "Environment variables (use  prefix):"
-            echo "  LLAMA_HOST           Server host"
-            echo "  LLAMA_PORT           Server port"
-            echo "  LLAMA_MODELS_PATH    Path to model files"
-            echo "  LLAMA_CONTEXT_SIZE   Context size"
-            echo "  LLAMA_GPU_LAYERS     GPU layers"
-            echo "  LLAMA_LOG_FILE       Log file name"
-            echo "  LLAMA_CPP_IMAGE      Docker image"
-            echo "  LLAMACPP_CUDA_TEST_IMAGE    CUDA test image for GPU detection (default: nvidia/cuda:12.6.0-base-ubuntu24.04)"
+            echo "Environment variables (use LLAMACPP_ prefix):"
+            echo "  LLAMACPP_HOST              Server host"
+            echo "  LLAMACPP_PORT              Server port"
+            echo "  LLAMACPP_MODELS_PATH       Path to model files"
+            echo "  LLAMACPP_CONTEXT_SIZE      Context size"
+            echo "  LLAMACPP_GPU_LAYERS        GPU layers"
+            echo "  LLAMACPP_LOG_FILE          Log file name"
+            echo "  LLAMACPP_IMAGE             Docker image"
+            echo "  LLAMACPP_CUDA_TEST_IMAGE   CUDA test image for GPU detection"
             echo ""
             echo "Examples:"
             echo "  $0 -c 1024 -g 50 -l my-server.log"
-            echo "  LLAMA_PORT=8080 $0 --context-size 2048 --port 9000"
+            echo "  LLAMACPP_PORT=8080 $0 --context-size 2048 --port 9000"
             exit 0
             ;;
         *)

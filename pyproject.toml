@@ -5,6 +5,8 @@ description = "A RAG agent using Llama Index and Postgres Vector Store"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "docling>=2.72.0",
+    "feedparser>=6.0.12",
     "llama-index>=0.14.13",
     "llama-index-embeddings-huggingface>=0.6.1",
     "llama-index-llms-openai-like>=0.6.0",
