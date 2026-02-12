@@ -17,3 +17,6 @@ wheels/
 
 # Content of data directory
 data/
+
+# Vscode settings
+.vscode/
