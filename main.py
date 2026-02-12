@@ -118,7 +118,7 @@ async def main():
     setup_logging(logger, log_level=args.log_level)
     
     # Validate required Postgres environment variables
-    postgres_table = os.getenv("POSTGRES_TABLE", "llama_index_embeddings")
+    postgres_table = os.getenv("POSTGRES_TABLE")
     if not postgres_table:
         postgres_table = "llama_index_embeddings"
         logger.warning(
