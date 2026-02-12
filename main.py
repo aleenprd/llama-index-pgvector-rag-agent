@@ -152,12 +152,16 @@ async def main():
     # Convert and validate POSTGRES_PORT
     try:
         postgres_port = int(required_env_vars["POSTGRES_PORT"])
-        if not (MIN_POSTGRES_PORT <= postgres_port <= MAX_POSTGRES_PORT):
-            raise ValueError(f"Port must be between {MIN_POSTGRES_PORT} and {MAX_POSTGRES_PORT}, got {postgres_port}")
     except ValueError as e:
-        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer between {MIN_POSTGRES_PORT} and {MAX_POSTGRES_PORT}"
+        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer"
         logger.error(error_msg)
         raise ValueError(error_msg) from e
+    
+    # Validate port range
+    if not (MIN_POSTGRES_PORT <= postgres_port <= MAX_POSTGRES_PORT):
+        error_msg = f"Invalid POSTGRES_PORT value {postgres_port}: must be between {MIN_POSTGRES_PORT} and {MAX_POSTGRES_PORT}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     
     documents = None
     if args.full_refresh:
