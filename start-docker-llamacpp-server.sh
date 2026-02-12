@@ -13,7 +13,7 @@
 #   LLAMACPP_GPU_LAYERS     - GPU layers (default: 99)
 #   LLAMACPP_LOG_FILE       - Log file name (default: llama-server.log)
 #   LLAMACPP_IMAGE          - Docker image (default: ghcr.io/ggml-org/llama.cpp:full-cuda)
-#   LLAMACPP_CUDA_TEST_IMAGE - CUDA test image (default: nvidia/cuda:12.6.0-base-ubuntu24.04)
+#   LLAMACPP_CUDA_TEST_IMAGE - CUDA test image (default: nvidia/cuda:11.8.0-base-ubuntu22.04)
 #
 # Command-line arguments (override environment variables):
 #   --host               - Server host
