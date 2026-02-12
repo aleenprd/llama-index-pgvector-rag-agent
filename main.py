@@ -16,6 +16,8 @@ nest_asyncio.apply()  # Apply nest_asyncio to allow nested event loops
 
 # Default configuration constants
 DEFAULT_POSTGRES_TABLE = "llama_index_embeddings"
+MIN_POSTGRES_PORT = 1
+MAX_POSTGRES_PORT = 65535
 
 
 def parse_args() -> argparse.Namespace:
@@ -150,10 +152,10 @@ async def main():
     # Convert and validate POSTGRES_PORT
     try:
         postgres_port = int(required_env_vars["POSTGRES_PORT"])
-        if not (1 <= postgres_port <= 65535):
-            raise ValueError(f"Port must be between 1 and 65535, got {postgres_port}")
+        if not (MIN_POSTGRES_PORT <= postgres_port <= MAX_POSTGRES_PORT):
+            raise ValueError(f"Port must be between {MIN_POSTGRES_PORT} and {MAX_POSTGRES_PORT}, got {postgres_port}")
     except ValueError as e:
-        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer between 1 and 65535"
+        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer between {MIN_POSTGRES_PORT} and {MAX_POSTGRES_PORT}"
         logger.error(error_msg)
         raise ValueError(error_msg) from e
     
