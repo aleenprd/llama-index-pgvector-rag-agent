@@ -193,32 +193,34 @@ class ArxivHandler:
             if "pdf" in formats:
                 pdf_path = f"{paper_dir}/{paper_id}.pdf"
                 pdf_download_url = paper.link.replace("abs", "pdf")
-                response = requests.get(pdf_download_url, stream=True)
-
-                if response.status_code == 200:
+                try:
+                    response = requests.get(pdf_download_url, stream=True, timeout=30)
+                    response.raise_for_status()
+                    
                     with open(pdf_path, "wb") as pdf_file:
                         for chunk in response.iter_content(chunk_size=8192):
                             pdf_file.write(chunk)
                     logger.debug(f"Downloaded PDF for {paper_id} to {pdf_path}")
-                else:
+                except requests.exceptions.RequestException as e:
                     logger.debug(
-                        f"Failed to download PDF for {paper_id}: HTTP {response.status_code}"
+                        f"Failed to download PDF for {paper_id}: {e}"
                     )
 
             # Download the HTML
             if "html" in formats:
                 html_path = f"{paper_dir}/{paper_id}.html"
                 html_download_url = paper.link.replace("abs", "html")
-                response = requests.get(html_download_url, stream=True)
-
-                if response.status_code == 200:
+                try:
+                    response = requests.get(html_download_url, stream=True, timeout=30)
+                    response.raise_for_status()
+                    
                     with open(html_path, "wb") as html_file:
                         for chunk in response.iter_content(chunk_size=8192):
                             html_file.write(chunk)
                     logger.debug(f"Downloaded HTML for {paper_id} to {html_path}")
-                else:
+                except requests.exceptions.RequestException as e:
                     logger.debug(
-                        f"Failed to download HTML for {paper_id}: HTTP {response.status_code}"
+                        f"Failed to download HTML for {paper_id}: {e}"
                     )
 
         return paper_id
