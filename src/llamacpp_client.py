@@ -143,9 +143,10 @@ class LlamaCppClient:
             "n_predict": n_predict,
         }
 
+        url = f"{self.base_url}/completion"
         try:
             response = self.session.post(
-                f"{self.base_url}/completion",
+                url,
                 json=payload,
                 headers={"Content-Type": "application/json"},
                 timeout=60,
@@ -158,10 +159,17 @@ class LlamaCppClient:
                 else self.process_response(response.json(), prompt)
             )
         except requests.exceptions.RequestException as e:
-            print(f"Error sending request: {e}")
+            status_code = getattr(getattr(e, 'response', None), 'status_code', 'N/A')
+            logger.error(
+                f"Error sending request to {url} (status code: {status_code}): {e}",
+                exc_info=True
+            )
             return None
         except json.JSONDecodeError as e:
-            print(f"Error parsing response: {e}")
+            logger.error(
+                f"Error parsing JSON response from {url}: {e}",
+                exc_info=True
+            )
             return None
 
     def set_model_from_server(self) -> Optional[str]:
