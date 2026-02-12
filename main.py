@@ -1,4 +1,5 @@
 import os
+import json
 import asyncio
 import argparse
 import nest_asyncio
@@ -32,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--data_dir",
         type=str,
-        default="data/examples",
+        default="data/arxiv",
         help="Directory containing documents to index",
         required=False,
     )
@@ -86,6 +87,13 @@ def parse_args() -> argparse.Namespace:
         required=False,
     )
     parser.add_argument(
+        "--sparse_top_k",
+        type=int,
+        default=5,
+        help="Number of top keyword-matched documents to retrieve (if hybrid search is enabled)",
+        required=False,
+    )
+    parser.add_argument(
         "--chunk_size",
         type=int,
         default=512,
@@ -118,7 +126,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def main():
+def main():
     args = parse_args()
     setup_logging(logger, log_level=args.log_level)
     
@@ -176,7 +184,6 @@ async def main():
     
     rag_agent = PGVectorStoreRagAgent(
         logger=logger,
-        documents=documents,
         conn_kwargs={
             "user": required_env_vars["POSTGRES_USER"],
             "password": required_env_vars["POSTGRES_PASSWORD"],
@@ -192,24 +199,50 @@ async def main():
         llm_api_key=os.getenv("OPENAI_API_KEY"),
         llm_request_timeout=args.llm_request_timeout,
         llm_temperature=args.llm_temperature,
-        similarity_top_k=args.similarity_top_k,
-        chunk_size=args.chunk_size,
-        chunk_overlap=args.chunk_overlap,
         hybrid_search=args.hybrid_search,
-        full_refresh=args.full_refresh,
     )
-
-    # Test different queries
-    queries = [
-        "What was being taught in the florence academy?",
-    ]
     
-    for query in queries:
-        logger.info(f"\n{'='*60}")
-        logger.info(f"Query: {query}")
-        logger.info(f"{'='*60}")
-        await rag_agent.search_documents(query, verbose=True, truncate=500)
+    if args.full_refresh:
+        logger.info(
+            "Performing full refresh: dropping and recreating the vector store table."
+        )
+        with rag_agent.conn.cursor() as c:
+            try:
+                c.execute(f"DROP TABLE IF EXISTS {os.getenv('POSTGRES_TABLE')};")
+            except Exception as e:
+                raise Exception(
+                    "Failed to drop existing vector store table for full refresh."
+                )
+
+        rag_agent.run_ingestion_pipeline(args.data_dir)
+
+    while True:
+        try:
+            query = input("\nEnter a query (or 'exit' to quit): ")
+            if query.lower() == "exit":
+                break
+
+            logger.info(f"\n{'='*60}")
+            logger.info(f"Query: {query}")
+            logger.info(f"{'='*60}")
+            rag_agent.search_documents(
+                query,
+                hybrid_search=args.hybrid_search,
+                sparse_top_k=args.sparse_top_k,
+                similarity_top_k=args.similarity_top_k,
+                verbose=True,
+                truncate=500,
+            )
+        except KeyboardInterrupt:
+            logger.info("\nExiting...")
+            break
+        except Exception as e:
+            logger.error(f"Error processing query: {e}")
+            continue
+        
+    logger.info("Done querying. Goodbye!")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # asyncio.run(main())
+    main()

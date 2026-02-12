@@ -1,5 +1,8 @@
 import os
 import sys
+import re
+import hashlib
+import uuid
 from loguru import logger
 from datetime import datetime
 
@@ -43,23 +46,3 @@ def unix_timestamp_to_timestamp(unix_timestamp: int) -> str:
     """
     return datetime.fromtimestamp(unix_timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
-
-def extract_metadata(filename: str) -> dict:
-    """Extract metadata from a file.
-
-    Returns a dictionary with the following keys:
-    - filename: Name of the file
-    - size: Size of the file in bytes
-    - created_at: Creation time of the file in standard timestamp format
-    - type: File extension (without the dot)
-    """
-    metadata = {}
-    metadata["filename"] = filename
-    metadata["size"] = os.path.getsize(filename)  # Size in bytes
-    metadata["created_at"] = unix_timestamp_to_timestamp(
-        os.path.getctime(filename)
-    )  # Creation time
-    metadata["type"] = os.path.splitext(filename)[1][
-        1:
-    ]  # Get file extension without dot
-    return metadata

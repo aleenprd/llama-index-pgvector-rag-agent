@@ -11,3 +11,9 @@ wheels/
 
 # Secret files
 *.env
+
+# JSON files
+*.json
+
+# Content of data directory
+data/
