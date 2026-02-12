@@ -9,10 +9,12 @@ dependencies = [
     "feedparser>=6.0.12",
     "llama-index>=0.14.13",
     "llama-index-embeddings-huggingface>=0.6.1",
+    "llama-index-extractors-entity>=0.4.1",
     "llama-index-llms-openai-like>=0.6.0",
     "llama-index-vector-stores-postgres>=0.7.3",
     "loguru>=0.7.3",
     "python-dotenv>=1.2.1",
+    "streamlit>=1.54.0",
     "torch>=2.10.0",
     "torchvision>=0.25.0",
 ]
