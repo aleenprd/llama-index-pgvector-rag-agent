@@ -144,6 +144,14 @@ async def main():
         logger.error(error_msg)
         raise ValueError(error_msg)
     
+    # Convert and validate POSTGRES_PORT
+    try:
+        postgres_port = int(required_env_vars["POSTGRES_PORT"])
+    except ValueError as e:
+        error_msg = f"Invalid POSTGRES_PORT value '{required_env_vars['POSTGRES_PORT']}': must be a valid integer"
+        logger.error(error_msg)
+        raise ValueError(error_msg) from e
+    
     documents = None
     if args.full_refresh:
         logger.info("Performing full refresh: dropping and recreating the vector store table.")
@@ -156,11 +164,11 @@ async def main():
         logger=logger,
         documents=documents,
         conn_kwargs={
-            "user": os.getenv("POSTGRES_USER"),
-            "password": os.getenv("POSTGRES_PASSWORD"),
-            "host": os.getenv("POSTGRES_HOST"),
-            "port": int(os.getenv("POSTGRES_PORT")),
-            "database": os.getenv("POSTGRES_DB"),
+            "user": required_env_vars["POSTGRES_USER"],
+            "password": required_env_vars["POSTGRES_PASSWORD"],
+            "host": required_env_vars["POSTGRES_HOST"],
+            "port": postgres_port,
+            "database": required_env_vars["POSTGRES_DB"],
             "table": postgres_table,
         },
         emb_model_name=args.embeddings_model_name,
