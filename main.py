@@ -117,6 +117,33 @@ async def main():
     args = parse_args()
     setup_logging(logger, log_level=args.log_level)
     
+    # Validate required Postgres environment variables
+    postgres_table = os.getenv("POSTGRES_TABLE", "llama_index_embeddings")
+    if not postgres_table:
+        postgres_table = "llama_index_embeddings"
+        logger.warning(
+            f"POSTGRES_TABLE not set, using default: '{postgres_table}'. "
+            f"Set POSTGRES_TABLE in .env to customize the table name."
+        )
+    
+    required_env_vars = {
+        "POSTGRES_USER": os.getenv("POSTGRES_USER"),
+        "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "POSTGRES_HOST": os.getenv("POSTGRES_HOST"),
+        "POSTGRES_PORT": os.getenv("POSTGRES_PORT"),
+        "POSTGRES_DB": os.getenv("POSTGRES_DB"),
+    }
+    
+    missing_vars = [var for var, value in required_env_vars.items() if not value]
+    if missing_vars:
+        error_msg = (
+            f"Missing required environment variable(s): {', '.join(missing_vars)}. "
+            f"Please set them in your .env file or environment. "
+            f"See .env.example for reference."
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
     documents = None
     if args.full_refresh:
         logger.info("Performing full refresh: dropping and recreating the vector store table.")
@@ -134,7 +161,7 @@ async def main():
             "host": os.getenv("POSTGRES_HOST"),
             "port": int(os.getenv("POSTGRES_PORT")),
             "database": os.getenv("POSTGRES_DB"),
-            "table": os.getenv("POSTGRES_TABLE"),
+            "table": postgres_table,
         },
         emb_model_name=args.embeddings_model_name,
         emb_dim=args.embeddings_dim,
