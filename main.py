@@ -123,6 +123,8 @@ async def main():
     setup_logging(logger, log_level=args.log_level)
     
     # Validate required Postgres environment variables
+    # Note: We use explicit None and empty string checks instead of 'if not value'
+    # to handle edge cases where '0' or 'false' strings are valid values
     postgres_table = os.getenv("POSTGRES_TABLE")
     if postgres_table is None or postgres_table == "":
         postgres_table = DEFAULT_POSTGRES_TABLE
@@ -139,6 +141,7 @@ async def main():
         "POSTGRES_DB": os.getenv("POSTGRES_DB"),
     }
     
+    # Explicit check for None and empty string to allow values like '0' or 'false'
     missing_vars = [var for var, value in required_env_vars.items() if value is None or value == ""]
     if missing_vars:
         error_msg = (
