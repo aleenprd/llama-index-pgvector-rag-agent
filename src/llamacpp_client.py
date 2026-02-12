@@ -21,8 +21,16 @@ def get_formatted_timestamp():
         return "Error"
 
 
-def nanoseconds_to_seconds(nanoseconds: int) -> float:
-    return round(nanoseconds / 1_000_000_000, 3)
+def milliseconds_to_seconds(milliseconds: float) -> float:
+    """Convert milliseconds to seconds.
+    
+    Args:
+        milliseconds: Time duration in milliseconds
+        
+    Returns:
+        float: Time duration in seconds, rounded to 3 decimal places
+    """
+    return round(milliseconds / 1000, 3)
 
 
 class LlamaCppClient:
@@ -100,11 +108,11 @@ class LlamaCppClient:
             "tokens_evaluated": round(response["tokens_evaluated"], 3),
             "tokens_predicted": response["tokens_predicted"],
             "total_tokens": response["tokens_evaluated"] + response["tokens_predicted"],
-            "prompt_eval_duration_s": nanoseconds_to_seconds(prompt_eval_duration_ms),
-            "load_duration_s": nanoseconds_to_seconds(prediction_duration_ms),
-            "total_duration_s": nanoseconds_to_seconds(total_duration_ms),
+            "prompt_eval_duration_s": milliseconds_to_seconds(prompt_eval_duration_ms),
+            "prediction_duration_s": milliseconds_to_seconds(prediction_duration_ms),
+            "total_duration_s": milliseconds_to_seconds(total_duration_ms),
             "prompt_eval_duration_ms": prompt_eval_duration_ms,
-            "load_duration_ms": prediction_duration_ms,
+            "prediction_duration_ms": prediction_duration_ms,
             "total_duration_ms": total_duration_ms,
             "eval_tokens_per_s": round(timings["prompt_per_second"], 3),
             "prediction_tokens_per_s": round(timings["predicted_per_second"], 3),
