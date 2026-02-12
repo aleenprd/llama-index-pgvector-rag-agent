@@ -159,7 +159,7 @@ class LlamaCppClient:
                 else self.process_response(response.json(), prompt)
             )
         except requests.exceptions.RequestException as e:
-            status_code = getattr(e.response, 'status_code', 'N/A') if hasattr(e, 'response') and e.response is not None else 'N/A'
+            status_code = getattr(getattr(e, 'response', None), 'status_code', 'N/A')
             logger.error(
                 f"Error sending request to {url} (status code: {status_code}): {e}",
                 exc_info=True
