@@ -288,7 +288,7 @@ class ArxivHandler:
                 json_files = list(subdir.glob("*.json"))
                 if json_files:
                     json_file = json_files[0]  # Take the first JSON file found
-                    print(f"Processing: {json_file}")
+                    logger.debug(f"Processing: {json_file}")
 
                     try:
                         with open(json_file, "r", encoding="utf-8") as f:
@@ -306,7 +306,7 @@ class ArxivHandler:
                         documents.append(doc)
 
                     except Exception as e:
-                        print(f"Error processing {json_file}: {e}")
+                        logger.error(f"Error processing {json_file}: {e}")
                         continue
 
         return documents
